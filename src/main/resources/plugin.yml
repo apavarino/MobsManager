@@ -1,0 +1,17 @@
+name: MobsManager
+main: me.crylonz.MobsManager
+version: "3.0.0"
+author: Crylonz
+description: MobsManager
+api-version: "1.13"
+commands:
+  mm:
+    description: List of commands
+    usage: /mm
+permissions:
+  mobsmanager.manageEntity:
+    description: Allows you to disable or enable entity on the server
+    default: op
+  mobsmanager.reload:
+    description: Allows you to reload the plugin
+    default: op
