@@ -1,0 +1,22 @@
+version: 2.0
+jobs:
+  build:
+    working_directory: ~/mobsmanager
+    docker:
+      - image: circleci/openjdk:8-jdk-stretch
+    steps:
+      - checkout
+      - restore_cache:
+          key: mobsmanager-{{ checksum "pom.xml" }}
+
+      - run: mvn dependency:go-offline
+
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: mobsmanager-{{ checksum "pom.xml" }}
+
+      - run: mvn install
+
+      - store_artifacts:
+          path: /home/circleci/mobsmanager/target/MobsManager-SNAPSHOT.jar
