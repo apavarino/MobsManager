@@ -3,10 +3,13 @@ package me.crylonz;
 import me.crylonz.commands.MMCommandExecutor;
 import me.crylonz.commands.MMTabCompletion;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -105,7 +108,7 @@ public class MobsManager extends JavaPlugin implements Listener {
         log.info("[MobsManager] is disabled !");
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH)
     public void onCreatureSpawnEvent(CreatureSpawnEvent e) {
         if (e == null)
             return;
@@ -119,6 +122,7 @@ public class MobsManager extends JavaPlugin implements Listener {
                 } else {
                     switch (e.getSpawnReason()) {
                         case NATURAL:
+                        case DEFAULT:
                             e.setCancelled(!mobData.isNaturalSpawn());
                             break;
                         case CUSTOM:
@@ -136,6 +140,22 @@ public class MobsManager extends JavaPlugin implements Listener {
                     }
                 }
                 break;
+            }
+        }
+    }
+
+    @EventHandler
+    public void onChunkLoadEvent(ChunkLoadEvent e) {
+        if (e.isNewChunk() && e.getChunk().isLoaded()) {
+            for (Entity entity : e.getChunk().getEntities()) {
+                for (MobsData mobData : enableList) {
+                    if (entity.getName().equalsIgnoreCase(mobData.getName())) {
+                        if (!mobData.isAllSpawn() || !mobData.isNaturalSpawn()) {
+                            entity.remove();
+                            break;
+                        }
+                    }
+                }
             }
         }
     }
