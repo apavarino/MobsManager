@@ -14,12 +14,13 @@ import org.bukkit.plugin.Plugin;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static me.crylonz.MobsManager.*;
 
 public class MMCommandExecutor implements CommandExecutor {
 
-    private static final String errorMsg = "[MobsManager] Invalid command usage : /mm enable|disable <MOBS_ENTITY> <WORLD> <SpawnReason>";
+    private static final String errorMsg = "[MobsManager] Invalid command usage : /mm enable|disable <MOBS_ENTITY> <SpawnReason> <WORLD>";
     private static final String errorMsgReason = "[MobsManager] Valid reasons are : ALL|CUSTOM|NATURAL|SPAWNER|EGG|BREEDING";
     private final Plugin plugin;
 
@@ -115,42 +116,49 @@ public class MMCommandExecutor implements CommandExecutor {
     }
 
     private boolean enableOrDisableMob(String mobs, boolean state, MMSpawnType type, String worldName) {
-        return Arrays.stream(EntityType.values())
+        AtomicBoolean updated = new AtomicBoolean(false);
+        Arrays.stream(EntityType.values())
                 .filter(MobsManager::isUsefullEntity)
                 .filter(entity -> entity.name().equalsIgnoreCase(mobs))
-                .map(entity -> enableList
+                .forEach(entity -> enableList
                         .stream()
                         .filter(mobData -> mobData.getName().equalsIgnoreCase(entity.name()))
-                        .filter(mobData -> mobData.getWorldName().equalsIgnoreCase(worldName))
-                        .findFirst()
-                        .map(mobData -> {
-                            switch (type) {
-                                case ALL:
-                                    mobData.setAllSpawn(state);
-                                    break;
-                                case CUSTOM:
-                                    mobData.setCustomSpawn(state);
-                                    break;
-                                case NATURAL:
-                                    mobData.setNaturalSpawn(state);
-                                    break;
-                                case SPAWNER:
-                                    mobData.setSpawnerSpawn(state);
-                                    break;
-                                case EGG:
-                                    mobData.setEggSpawn(state);
-                                    break;
-                                case BREEDING:
-                                    mobData.setBreedingSpawn(state);
-                                    break;
-                                case IRON_GOLEM:
-                                    mobData.setIronGolemSpawn(state);
-                                    break;
-                            }
-                            plugin.getConfig().set("mobs", enableList);
-                            plugin.saveConfig();
-                            return true;
-                        }).orElse(false)).findFirst().orElse(false);
+                        .filter(mobData -> mobData.getWorldName().equalsIgnoreCase(worldName) || worldName.equalsIgnoreCase("*"))
+                        .forEach(mobData -> {
+                                    updated.set(true);
+                                    switch (type) {
+                                        case ALL:
+                                            mobData.setAllSpawn(state);
+                                            break;
+                                        case CUSTOM:
+                                            mobData.setCustomSpawn(state);
+                                            break;
+                                        case NATURAL:
+                                            mobData.setNaturalSpawn(state);
+                                            break;
+                                        case SPAWNER:
+                                            mobData.setSpawnerSpawn(state);
+                                            break;
+                                        case EGG:
+                                            mobData.setEggSpawn(state);
+                                            break;
+                                        case BREEDING:
+                                            mobData.setBreedingSpawn(state);
+                                            break;
+                                        case IRON_GOLEM:
+                                            mobData.setIronGolemSpawn(state);
+                                            break;
+                                        default:
+                                            updated.set(false);
+                                            break;
+                                    }
+                                    plugin.getConfig().set("mobs", enableList);
+                                    plugin.saveConfig();
+                                }
+
+                        ));
+
+        return updated.get();
     }
 
     private void commandDisable(MMSpawnType spawnType, Player p, String[] args) {

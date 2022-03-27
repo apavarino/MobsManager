@@ -68,6 +68,7 @@ public class MMTabCompletion implements TabCompleter {
                     if (!args[0].equals("info")) {
                         if (player.hasPermission("mobsmanager.manageEntity")) {
                             Bukkit.getWorlds().forEach(world -> list.add(world.getName()));
+                            list.add("*");
                         }
                     }
                 }
