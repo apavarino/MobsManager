@@ -10,22 +10,40 @@ import java.util.Map;
 public class MobsData implements ConfigurationSerializable {
 
     private String type;
+    private String worldName;
     private boolean allSpawn;
     private boolean naturalSpawn;
     private boolean customSpawn;
     private boolean spawnerSpawn;
     private boolean eggSpawn;
     private boolean breedingSpawn;
+    private boolean ironGolemSpawn;
 
-    public MobsData(String name,boolean allSpawn, boolean naturalSpawn, boolean customSpawn, boolean spawnerSpawn,
-                    boolean eggSpawn, boolean breedingSpawn ) {
+    public MobsData(String name, String worldName, boolean allSpawn, boolean naturalSpawn, boolean customSpawn, boolean spawnerSpawn,
+                    boolean eggSpawn, boolean breedingSpawn, boolean ironGolemSpawn) {
         this.type = name;
+        this.worldName = worldName;
         this.allSpawn = allSpawn;
         this.naturalSpawn = naturalSpawn;
         this.customSpawn = customSpawn;
         this.spawnerSpawn = spawnerSpawn;
         this.eggSpawn = eggSpawn;
         this.breedingSpawn = breedingSpawn;
+        this.ironGolemSpawn = ironGolemSpawn;
+    }
+
+    public static MobsData deserialize(Map<String, Object> map) {
+        return new MobsData(
+                (String) map.get("Name"),
+                (String) map.get("WorldName"),
+                (boolean) map.get("AllSpawn"),
+                (boolean) map.get("NaturalSpawn"),
+                (boolean) map.get("CustomSpawn"),
+                (boolean) map.get("SpawnerSpawn"),
+                (boolean) map.get("EggSpawn"),
+                (boolean) map.get("BreedingSpawn"),
+                (boolean) map.get("IronGolemSpawn")
+        );
     }
 
     public String getName() {
@@ -36,20 +54,16 @@ public class MobsData implements ConfigurationSerializable {
         this.type = name;
     }
 
-    public void setCustomSpawn(boolean customSpawn) {
-        this.customSpawn = customSpawn;
-    }
-
     public boolean getCustomSpawn() {
         return this.customSpawn;
     }
 
-    public void setNaturalSpawn(boolean naturalSpawn) {
-        this.naturalSpawn = naturalSpawn;
-    }
-
     public boolean getNaturalSpawn() {
         return this.naturalSpawn;
+    }
+
+    public String getWorldName() {
+        return worldName;
     }
 
     @Override
@@ -57,26 +71,15 @@ public class MobsData implements ConfigurationSerializable {
         Map<String, Object> map = new HashMap<>();
 
         map.put("Name", this.type);
+        map.put("WorldName", this.worldName);
         map.put("AllSpawn", this.allSpawn);
         map.put("CustomSpawn", this.customSpawn);
         map.put("NaturalSpawn", this.naturalSpawn);
         map.put("SpawnerSpawn", this.spawnerSpawn);
         map.put("EggSpawn", this.eggSpawn);
-        map.put("BreedingSpawn", this.eggSpawn);
-
+        map.put("BreedingSpawn", this.breedingSpawn);
+        map.put("IronGolemSpawn", this.ironGolemSpawn);
         return map;
-    }
-
-    public static MobsData deserialize(Map<String, Object> map) {
-        return new MobsData(
-                (String) map.get("Name"),
-                (boolean) map.get("AllSpawn"),
-                (boolean) map.get("NaturalSpawn"),
-                (boolean) map.get("CustomSpawn"),
-                (boolean) map.get("SpawnerSpawn"),
-                (boolean) map.get("EggSpawn"),
-                (boolean) map.get("BreedingSpawn")
-        );
     }
 
     public String getType() {
@@ -99,8 +102,16 @@ public class MobsData implements ConfigurationSerializable {
         return naturalSpawn;
     }
 
+    public void setNaturalSpawn(boolean naturalSpawn) {
+        this.naturalSpawn = naturalSpawn;
+    }
+
     public boolean isCustomSpawn() {
         return customSpawn;
+    }
+
+    public void setCustomSpawn(boolean customSpawn) {
+        this.customSpawn = customSpawn;
     }
 
     public boolean isSpawnerSpawn() {
@@ -127,4 +138,15 @@ public class MobsData implements ConfigurationSerializable {
         this.breedingSpawn = breedingSpawn;
     }
 
+    public void setWorldName(String worldName) {
+        this.worldName = worldName;
+    }
+
+    public boolean isIronGolemSpawn() {
+        return ironGolemSpawn;
+    }
+
+    public void setIronGolemSpawn(boolean ironGolemSpawn) {
+        this.ironGolemSpawn = ironGolemSpawn;
+    }
 }

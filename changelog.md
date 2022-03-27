@@ -1,3 +1,10 @@
+MobsManager 4.0
+
++ Added per world support
++ Add IRON_GOLEM spawn type support
++ Improve command feedback
++ Improve performance
+
 MobsManager 3.0
 
 FEATURES : 

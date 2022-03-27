@@ -1,5 +1,6 @@
 package me.crylonz.commands;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -54,6 +55,19 @@ public class MMTabCompletion implements TabCompleter {
                             for (MMSpawnType spawnType : MMSpawnType.values()) {
                                 list.add(spawnType.name());
                             }
+                        }
+                    }
+                    if (args[0].equals("info")) {
+                        if (player.hasPermission("mobsmanager.manageEntity")) {
+                            Bukkit.getWorlds().forEach(world -> list.add(world.getName()));
+                        }
+                    }
+                }
+
+                if (args.length == 4) {
+                    if (!args[0].equals("info")) {
+                        if (player.hasPermission("mobsmanager.manageEntity")) {
+                            Bukkit.getWorlds().forEach(world -> list.add(world.getName()));
                         }
                     }
                 }

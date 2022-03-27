@@ -2,6 +2,7 @@ package me.crylonz;
 
 import me.crylonz.commands.MMCommandExecutor;
 import me.crylonz.commands.MMTabCompletion;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -15,7 +16,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 public class MobsManager extends JavaPlugin implements Listener {
@@ -83,10 +86,13 @@ public class MobsManager extends JavaPlugin implements Listener {
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(this, this);
 
-        for (EntityType entity : EntityType.values()) {
-            if (isUsefullEntity(entity))
-                enableList.add(new MobsData(entity.name(), true, true, true, true, true, true));
-        }
+        Bukkit.getWorlds().forEach(world -> {
+            for (EntityType entity : EntityType.values()) {
+                if (isUsefullEntity(entity))
+                    enableList.add(new MobsData(entity.name(), world.getName(), true, true, true, true, true, true, true));
+            }
+        });
+
 
         File configFile = new File(getDataFolder(), "config.yml");
 
@@ -113,40 +119,53 @@ public class MobsManager extends JavaPlugin implements Listener {
         if (e == null)
             return;
 
-        for (MobsData mobData : enableList) {
-            if (e.getEntityType().name().equalsIgnoreCase(mobData.getName())) {
-
-                if (!mobData.isAllSpawn()) {
-                    e.setCancelled(true);
-
-                } else {
-                    switch (e.getSpawnReason()) {
-                        case NATURAL:
-                        case DEFAULT:
-                            e.setCancelled(!mobData.isNaturalSpawn());
-                            break;
-                        case CUSTOM:
-                            e.setCancelled(!mobData.isCustomSpawn());
-                            break;
-                        case SPAWNER:
-                            e.setCancelled(!mobData.isSpawnerSpawn());
-                            break;
-                        case SPAWNER_EGG:
-                            e.setCancelled(!mobData.isEggSpawn());
-                            break;
-                        case BREEDING:
-                            e.setCancelled(!mobData.isBreedingSpawn());
-                            break;
+        Optional<Boolean> isCancelled = enableList
+                .stream()
+                .filter(mobsData -> mobsData.getWorldName().equalsIgnoreCase(e.getEntity().getWorld().getName()))
+                .filter(mobsData -> mobsData.getName().equalsIgnoreCase(e.getEntityType().name()))
+                .findFirst()
+                .map(mobData -> {
+                    if (!mobData.isAllSpawn()) {
+                        return true;
+                    } else {
+                        switch (e.getSpawnReason()) {
+                            case NATURAL:
+                            case DEFAULT:
+                                return !mobData.isNaturalSpawn();
+                            case CUSTOM:
+                                return !mobData.isCustomSpawn();
+                            case SPAWNER:
+                                return !mobData.isSpawnerSpawn();
+                            case SPAWNER_EGG:
+                                return !mobData.isEggSpawn();
+                            case BREEDING:
+                                return !mobData.isBreedingSpawn();
+                            case BUILD_IRONGOLEM:
+                                return !mobData.isIronGolemSpawn();
+                            default:
+                                return false;
+                        }
                     }
-                }
-                break;
-            }
-        }
+                });
+        e.setCancelled(isCancelled.orElse(false));
     }
 
     @EventHandler
     public void onChunkLoadEvent(ChunkLoadEvent e) {
         if (e.isNewChunk() && e.getChunk().isLoaded()) {
+            Arrays.stream(e.getChunk().getEntities())
+                    .forEach(entity -> {
+                        enableList
+                                .stream()
+                                .filter(mobData -> mobData.getName().equalsIgnoreCase(entity.getName()))
+                                .filter(mobData -> mobData.getWorldName().equalsIgnoreCase(entity.getWorld().getName()))
+                                .forEach(mobData -> {
+                                    if (!mobData.isAllSpawn() || !mobData.isNaturalSpawn()) {
+                                        entity.remove();
+                                    }
+                                });
+                    });
+
             for (Entity entity : e.getChunk().getEntities()) {
                 for (MobsData mobData : enableList) {
                     if (entity.getName().equalsIgnoreCase(mobData.getName())) {
@@ -166,6 +185,7 @@ public class MobsManager extends JavaPlugin implements Listener {
         NATURAL,
         SPAWNER,
         EGG,
-        BREEDING
+        BREEDING,
+        IRON_GOLEM
     }
 }
