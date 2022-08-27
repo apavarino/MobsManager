@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static me.crylonz.MobsManager.MMSpawnType;
-import static me.crylonz.MobsManager.isUsefullEntity;
+import static me.crylonz.MobsManager.isUsefulEntity;
 
 public class MMTabCompletion implements TabCompleter {
 
@@ -41,7 +41,7 @@ public class MMTabCompletion implements TabCompleter {
                     if (args[0].equals("disable") || args[0].equals("enable") || args[0].equals("info")) {
                         if (player.hasPermission("mobsmanager.manageEntity")) {
                             for (EntityType entity : EntityType.values()) {
-                                if (isUsefullEntity(entity)) {
+                                if (isUsefulEntity(entity)) {
                                     list.add(entity.name());
                                 }
                             }

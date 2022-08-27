@@ -1,17 +1,24 @@
 name: MobsManager
 main: me.crylonz.MobsManager
-version: "4.1.0"
+version: "5.0.0"
 author: Crylonz
+softdepend: [Multiverse-Core]
 description: MobsManager
 api-version: "1.13"
 commands:
   mm:
     description: List of commands
-    usage: /mm
+    usage: use /mm help
 permissions:
   mobsmanager.manageEntity:
     description: Allows you to disable or enable entity on the server
     default: op
   mobsmanager.reload:
     description: Allows you to reload the plugin
+    default: op
+  mobsmanager.help:
+    description: Display help
+    default: op
+  mobsmanager.info:
+    description: Allows you to see spawn info of a world
     default: op

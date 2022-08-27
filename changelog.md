@@ -1,3 +1,24 @@
+MobsManager 5.0.0
+
+Features :
+
++ Adding support for Multiverse world
++ Adding new server world auto-detection on plugin restart
++ Adding permission mobsmanager.info to allow using /mm info
++ Adding command /mm help
++ Adding permission mobsmanager.help to allow using /mm help
++ Adding bstat integration to give plugin statistics
++ Adding plugin auto updater
++ Adding config to disable auto-updater
++ Adding config.yml auto update system on update
+
+Improvement :
++ Adding (better) feedback on command failure
++ config.yml is now a config file : MobsData configuration is now store on MobsData.yml. Tons of config options incoming soon !
+
+BugFix :
++ Fixing bad permission for command /mm info
+
 MobsManager 4.0
 
 + Added per world support

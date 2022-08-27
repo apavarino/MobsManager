@@ -5,6 +5,7 @@ import org.bukkit.configuration.serialization.SerializableAs;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @SerializableAs("MobsData")
 public class MobsData implements ConfigurationSerializable {
@@ -80,6 +81,19 @@ public class MobsData implements ConfigurationSerializable {
         map.put("BreedingSpawn", this.breedingSpawn);
         map.put("IronGolemSpawn", this.ironGolemSpawn);
         return map;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MobsData mobsData = (MobsData) o;
+        return Objects.equals(type, mobsData.type) && Objects.equals(worldName, mobsData.worldName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(type, worldName);
     }
 
     public String getType() {

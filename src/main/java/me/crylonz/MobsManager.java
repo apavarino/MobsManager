@@ -2,6 +2,9 @@ package me.crylonz;
 
 import me.crylonz.commands.MMCommandExecutor;
 import me.crylonz.commands.MMTabCompletion;
+import me.crylonz.utils.MobsManagerConfig;
+import me.crylonz.utils.MobsManagerUpdater;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.entity.Entity;
@@ -14,7 +17,6 @@ import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
@@ -24,10 +26,148 @@ import java.util.logging.Logger;
 public class MobsManager extends JavaPlugin implements Listener {
 
     public final static Logger log = Logger.getLogger("Minecraft");
-    public static ArrayList<MobsData> enableList = new ArrayList<>();
+    public static ArrayList<MobsData> mobsData = new ArrayList<>();
+    public MobsManagerConfig config = new MobsManagerConfig(this);
+
+    public static FileManager fileManager;
 
     static {
         ConfigurationSerialization.registerClass(MobsData.class, "MobsData");
+    }
+
+
+    public void onEnable() {
+        PluginManager pm = getServer().getPluginManager();
+        pm.registerEvents(this, this);
+        fileManager = new FileManager(this);
+
+        Metrics metrics = new Metrics(this, 15773);
+
+        Bukkit.getWorlds().forEach(world -> {
+            for (EntityType entity : EntityType.values()) {
+                if (isUsefulEntity(entity))
+                    mobsData.add(new MobsData(entity.name(), world.getName(), true, true, true, true, true, true, true));
+            }
+        });
+
+        //Updater from 4.X to 5.X
+        if (!fileManager.getMobsDataFile().exists() && fileManager.getConfigFile().exists()) {
+            fileManager.getConfigFile().renameTo(fileManager.getMobsDataFile());
+            log.warning("[MobsManager] Old configuration detected ( < 5.0.0 )");
+            log.warning("[MobsManager] Applying configuration migration...");
+        }
+
+        registerConfig();
+
+        if (!fileManager.getMobsDataFile().exists()) {
+            getConfig().options().header("PLEASE DON'T EDIT THIS FILE");
+        } else {
+            // Merging maybe new world configuration with existing one
+            ArrayList<MobsData> tmp = (ArrayList<MobsData>) fileManager.getMobsDataConfig().get("mobs");
+            mobsData.removeAll(tmp);
+            mobsData.addAll(tmp);
+        }
+
+        fileManager.getMobsDataConfig().set("mobs", mobsData);
+        fileManager.saveMobsDataConfig();
+
+        if (!fileManager.getConfigFile().exists()) {
+            saveDefaultConfig();
+        } else {
+            config.updateConfig();
+        }
+
+        if (config.getBoolean("auto-update")) {
+            MobsManagerUpdater updater = new MobsManagerUpdater(this, 322365, this.getFile(), MobsManagerUpdater.UpdateType.DEFAULT, true);
+        }
+
+        Objects.requireNonNull(this.getCommand("mm"), "Command mm not found")
+                .setExecutor(new MMCommandExecutor(this));
+        Objects.requireNonNull(getCommand("mm")).setTabCompleter(new MMTabCompletion());
+    }
+
+
+    public void registerConfig() {
+        config.register("auto-update", true);
+    }
+
+    public void onDisable() {
+        log.info("[MobsManager] is disabled !");
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onCreatureSpawnEvent(CreatureSpawnEvent e) {
+        if (e == null)
+            return;
+
+        Optional<Boolean> isCancelled = mobsData
+                .stream()
+                .filter(mobsData -> mobsData.getWorldName().equalsIgnoreCase(e.getEntity().getWorld().getName()))
+                .filter(mobsData -> mobsData.getName().equalsIgnoreCase(e.getEntityType().name()))
+                .findFirst()
+                .map(mobData -> {
+                    if (!mobData.isAllSpawn()) {
+                        return true;
+                    } else {
+                        switch (e.getSpawnReason()) {
+                            case NATURAL:
+                            case DEFAULT:
+                                return !mobData.isNaturalSpawn();
+                            case CUSTOM:
+                                return !mobData.isCustomSpawn();
+                            case SPAWNER:
+                                return !mobData.isSpawnerSpawn();
+                            case SPAWNER_EGG:
+                                return !mobData.isEggSpawn();
+                            case BREEDING:
+                                return !mobData.isBreedingSpawn();
+                            case BUILD_IRONGOLEM:
+                                return !mobData.isIronGolemSpawn();
+                            default:
+                                return false;
+                        }
+                    }
+                });
+        e.setCancelled(isCancelled.orElse(false));
+    }
+
+    @EventHandler
+    public void onChunkLoadEvent(ChunkLoadEvent e) {
+        if (e.isNewChunk() && e.getChunk().isLoaded()) {
+            Arrays.stream(e.getChunk().getEntities())
+                    .forEach(entity -> {
+                        mobsData
+                                .stream()
+                                .filter(mobData -> mobData.getName().equalsIgnoreCase(entity.getName()))
+                                .filter(mobData -> mobData.getWorldName().equalsIgnoreCase(entity.getWorld().getName()))
+                                .forEach(mobData -> {
+                                    if (!mobData.isAllSpawn() || !mobData.isNaturalSpawn()) {
+                                        entity.remove();
+                                    }
+                                });
+                    });
+
+            for (Entity entity : e.getChunk().getEntities()) {
+                for (MobsData mobData : mobsData) {
+                    if (entity.getName().equalsIgnoreCase(mobData.getName())) {
+                        if (!mobData.isAllSpawn() || !mobData.isNaturalSpawn()) {
+                            entity.remove();
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public enum MMSpawnType {
+        ALL,
+        CUSTOM,
+        NATURAL,
+        SPAWNER,
+        EGG,
+        BREEDING,
+        IRON_GOLEM
     }
 
     public static boolean asMyEnum(String str) {
@@ -38,7 +178,7 @@ public class MobsManager extends JavaPlugin implements Listener {
         return false;
     }
 
-    public static boolean isUsefullEntity(EntityType e) {
+    public static boolean isUsefulEntity(EntityType e) {
 
         return e != EntityType.DROPPED_ITEM &&
                 e != EntityType.EXPERIENCE_ORB &&
@@ -80,112 +220,5 @@ public class MobsManager extends JavaPlugin implements Listener {
                 e != EntityType.LIGHTNING &&
                 e != EntityType.PLAYER &&
                 e != EntityType.UNKNOWN;
-    }
-
-    public void onEnable() {
-        PluginManager pm = getServer().getPluginManager();
-        pm.registerEvents(this, this);
-
-        Bukkit.getWorlds().forEach(world -> {
-            for (EntityType entity : EntityType.values()) {
-                if (isUsefullEntity(entity))
-                    enableList.add(new MobsData(entity.name(), world.getName(), true, true, true, true, true, true, true));
-            }
-        });
-
-
-        File configFile = new File(getDataFolder(), "config.yml");
-
-        if (!configFile.exists()) {
-            getConfig().options().header("PLEASE RELOAD AFTER ANY CHANGE");
-            getConfig().set("mobs", enableList);
-            saveConfig();
-
-        } else {
-            enableList = (ArrayList<MobsData>) getConfig().get("mobs");
-        }
-
-        Objects.requireNonNull(this.getCommand("mm"), "Command mm not found")
-                .setExecutor(new MMCommandExecutor(this));
-        Objects.requireNonNull(getCommand("mm")).setTabCompleter(new MMTabCompletion());
-    }
-
-    public void onDisable() {
-        log.info("[MobsManager] is disabled !");
-    }
-
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onCreatureSpawnEvent(CreatureSpawnEvent e) {
-        if (e == null)
-            return;
-
-        Optional<Boolean> isCancelled = enableList
-                .stream()
-                .filter(mobsData -> mobsData.getWorldName().equalsIgnoreCase(e.getEntity().getWorld().getName()))
-                .filter(mobsData -> mobsData.getName().equalsIgnoreCase(e.getEntityType().name()))
-                .findFirst()
-                .map(mobData -> {
-                    if (!mobData.isAllSpawn()) {
-                        return true;
-                    } else {
-                        switch (e.getSpawnReason()) {
-                            case NATURAL:
-                            case DEFAULT:
-                                return !mobData.isNaturalSpawn();
-                            case CUSTOM:
-                                return !mobData.isCustomSpawn();
-                            case SPAWNER:
-                                return !mobData.isSpawnerSpawn();
-                            case SPAWNER_EGG:
-                                return !mobData.isEggSpawn();
-                            case BREEDING:
-                                return !mobData.isBreedingSpawn();
-                            case BUILD_IRONGOLEM:
-                                return !mobData.isIronGolemSpawn();
-                            default:
-                                return false;
-                        }
-                    }
-                });
-        e.setCancelled(isCancelled.orElse(false));
-    }
-
-    @EventHandler
-    public void onChunkLoadEvent(ChunkLoadEvent e) {
-        if (e.isNewChunk() && e.getChunk().isLoaded()) {
-            Arrays.stream(e.getChunk().getEntities())
-                    .forEach(entity -> {
-                        enableList
-                                .stream()
-                                .filter(mobData -> mobData.getName().equalsIgnoreCase(entity.getName()))
-                                .filter(mobData -> mobData.getWorldName().equalsIgnoreCase(entity.getWorld().getName()))
-                                .forEach(mobData -> {
-                                    if (!mobData.isAllSpawn() || !mobData.isNaturalSpawn()) {
-                                        entity.remove();
-                                    }
-                                });
-                    });
-
-            for (Entity entity : e.getChunk().getEntities()) {
-                for (MobsData mobData : enableList) {
-                    if (entity.getName().equalsIgnoreCase(mobData.getName())) {
-                        if (!mobData.isAllSpawn() || !mobData.isNaturalSpawn()) {
-                            entity.remove();
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    public enum MMSpawnType {
-        ALL,
-        CUSTOM,
-        NATURAL,
-        SPAWNER,
-        EGG,
-        BREEDING,
-        IRON_GOLEM
     }
 }
