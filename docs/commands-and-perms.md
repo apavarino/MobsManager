@@ -1,24 +1,17 @@
-## Deadchest - Commands & Permissions
-Make sure you have [installed](https://apavarino.github.io/Deadchest/installation) the plugin before reading this step.
+## MobsManager - Commands & Permissions
+Make sure you have [installed](https://apavarino.github.io/MobsManager/installation) the plugin before reading this step.
 
 This section describes commands and permissions provided by the plugin
 
-Command | Permission | Description
---- | --- | --- |
-`/dc reload` | `deadchest.admin` | Reload the plugin
-`/dc remove` | `deadchest.remove.own` | Remove all deadchests of the current player
-`/dc remove <PlayerName>` | `deadchest.remove.other` | Remove all deadchests of a player
-`/dc removeinfinite` | `deadchest.admin` | 	Remove all infiny chest
-`/dc removeall` | `deadchest.admin` | Remove all deadchests
-`/dc list` | `deadchest.list.own` | List all deadchest of the current player
-`/dc list all` | `deadchest.list.other` | List all deadchest
-`/dc list <PlayerName>` | `deadchest.list.other` | List all deadchest of a player
-`/dc giveBack <PlayerName>` | `deadchest.giveBack` | Return the oldest deadchest inventory of a player to him
- -- | `deadchest.generate` | Allow a player to generate deadchests
- -- | `deadchest.chestPass` | Allow a player to get all deadchests
- -- | `deadchest.infinityChest` |  Allow a player to have a infinity chest
+| Command                                   | Permission                 | Description                          |
+|-------------------------------------------|----------------------------|--------------------------------------|
+| `/mm reload`                              | `mobsmanager.reload`       | Reload the plugin                    |
+| `/mm enable <Mob> <SpawnReason> <World>`  | `mobsmanager.manageEntity` | Enable spawn way of a mob            |
+| `/mm disable <Mob> <SpawnReason> <World>` | `mobsmanager.manageEntity` | Disable spawn way of a mob           |
+| `/mm info <Mob> <World>`                  | `mobsmanager.manageEntity` | Display spawn configuration of a mob |
+| `/mm help`                                | `mobsmanager.help`         | Display help                         |
 
 
 ### Next step
-See [cutomization part](https://apavarino.github.io/Deadchest/customization) or go to [home page](https://apavarino.github.io/Deadchest)
+See [troubleshooting](https://apavarino.github.io/MobsManager/troubleshooting) or go to [home page](https://apavarino.github.io/MobsManager)
 
