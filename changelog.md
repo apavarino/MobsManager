@@ -1,3 +1,10 @@
+MobsManager 5.1.0
+
++ Fixing auto update issue with minor version
++ Adding /mobsmanager command instead of /mm (/mm can be used as alias)
++ Fixing entities natural spawn in special case when chunk load
++ Fixing chunk load prevent spawn system to match per world configuration
+
 MobsManager 5.0.0
 
 Features :
