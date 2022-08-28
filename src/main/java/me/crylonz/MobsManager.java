@@ -133,13 +133,14 @@ public class MobsManager extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onChunkLoadEvent(ChunkLoadEvent e) {
-        if (e.isNewChunk() && e.getChunk().isLoaded()) {
+        if (e.getChunk().isLoaded()) {
             Arrays.stream(e.getChunk().getEntities())
                     .forEach(entity -> {
                         mobsData
                                 .stream()
                                 .filter(mobData -> mobData.getName().equalsIgnoreCase(entity.getName()))
                                 .filter(mobData -> mobData.getWorldName().equalsIgnoreCase(entity.getWorld().getName()))
+                                .filter(mobsData -> mobsData.getWorldName().equalsIgnoreCase(entity.getWorld().getName()))
                                 .forEach(mobData -> {
                                     if (!mobData.isAllSpawn() || !mobData.isNaturalSpawn()) {
                                         entity.remove();
