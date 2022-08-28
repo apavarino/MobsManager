@@ -18,3 +18,8 @@ Java Edition required. MobsManager is mainly compatible with Bukkit, Spigot and 
 
 * Curseforge: https://www.curseforge.com/minecraft/bukkit-plugins/mobsmanager
 * Bukkit : https://dev.bukkit.org/projects/mobsmanager
+
+## Statistics
+<img align="center" src="https://bstats.org/signatures/bukkit/MobsManager.svg" alt="stats"/> 
+
+More stats [here](https://bstats.org/plugin/bukkit/MobsManager/15773)
