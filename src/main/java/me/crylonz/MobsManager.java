@@ -81,9 +81,9 @@ public class MobsManager extends JavaPlugin implements Listener {
             MobsManagerUpdater updater = new MobsManagerUpdater(this, 322365, this.getFile(), MobsManagerUpdater.UpdateType.DEFAULT, true);
         }
 
-        Objects.requireNonNull(this.getCommand("mm"), "Command mm not found")
+        Objects.requireNonNull(this.getCommand("mobsmanager"), "Command mobsmanager not found")
                 .setExecutor(new MMCommandExecutor(this));
-        Objects.requireNonNull(getCommand("mm")).setTabCompleter(new MMTabCompletion());
+        Objects.requireNonNull(getCommand("mobsmanager")).setTabCompleter(new MMTabCompletion());
     }
 
 

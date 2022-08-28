@@ -25,7 +25,7 @@ public class MMCommandRegistrationService extends MMCommandRegistration {
     }
 
     public void registerReload() {
-        registerCommand("mm reload", "mobsmanager.reload", () -> {
+        registerCommand("mobsmanager reload", "mobsmanager.reload", () -> {
             this.plugin.reloadConfig();
             mobsData = (ArrayList<MobsData>) plugin.getConfig().get("mobs");
             sender.sendMessage(ChatColor.GREEN + "[MobsManager] Plugin reload successfully");
@@ -33,7 +33,7 @@ public class MMCommandRegistrationService extends MMCommandRegistration {
     }
 
     public void registerHelp() {
-        registerCommand("mm help", "mobsmanager.help", () -> {
+        registerCommand("mobsmanager help", "mobsmanager.help", () -> {
             sender.sendMessage("[MobsManager]" + ChatColor.GREEN + " List of command");
             sender.sendMessage(ChatColor.GOLD + "/mm reload" + ChatColor.WHITE + " Reload the plugin");
             sender.sendMessage(ChatColor.GOLD + "/mm enable <Entity> <SpawnReason> <World> " + ChatColor.WHITE + "Enable spawning for a mob");
@@ -43,7 +43,7 @@ public class MMCommandRegistrationService extends MMCommandRegistration {
     }
 
     public void registerInfo() {
-        registerCommand("mm info {0} {1}", "mobsmanager.info", () -> {
+        registerCommand("mobsmanager info {0} {1}", "mobsmanager.info", () -> {
             mobsData.stream()
                     .filter(mobData -> mobData.getName().equalsIgnoreCase(args[1]))
                     .filter(mobData -> mobData.getWorldName().equalsIgnoreCase(args[2]))
@@ -63,7 +63,7 @@ public class MMCommandRegistrationService extends MMCommandRegistration {
     }
 
     public void registerDisable() {
-        registerCommand("mm disable {0} {1} {2}", "mobsmanager.manageEntity", () -> {
+        registerCommand("mobsmanager disable {0} {1} {2}", "mobsmanager.manageEntity", () -> {
             try {
                 MMSpawnType spawnType = MMSpawnType.valueOf(args[2].toUpperCase());
                 commandDisable(spawnType, args);
@@ -74,7 +74,7 @@ public class MMCommandRegistrationService extends MMCommandRegistration {
     }
 
     public void registerEnable() {
-        registerCommand("mm enable {0} {1} {2}", "mobsmanager.manageEntity", () -> {
+        registerCommand("mobsmanager enable {0} {1} {2}", "mobsmanager.manageEntity", () -> {
             try {
                 MMSpawnType spawnType = MMSpawnType.valueOf(args[2].toUpperCase());
                 commandEnable(spawnType, args);

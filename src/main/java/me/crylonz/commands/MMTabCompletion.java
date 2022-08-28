@@ -21,7 +21,7 @@ public class MMTabCompletion implements TabCompleter {
     public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
 
         list.clear();
-        if (cmd.getName().equalsIgnoreCase("mm")) {
+        if (cmd.getName().equalsIgnoreCase("mobsmanager")) {
             if (sender instanceof Player) {
                 Player player = (Player) sender;
 
