@@ -100,35 +100,37 @@ public class MobsManager extends JavaPlugin implements Listener {
         if (e == null)
             return;
 
-        Optional<Boolean> isCancelled = mobsData
-                .stream()
-                .filter(mobsData -> mobsData.getWorldName().equalsIgnoreCase(e.getEntity().getWorld().getName()))
-                .filter(mobsData -> mobsData.getName().equalsIgnoreCase(e.getEntityType().name()))
-                .findFirst()
-                .map(mobData -> {
-                    if (!mobData.isAllSpawn()) {
-                        return true;
-                    } else {
-                        switch (e.getSpawnReason()) {
-                            case NATURAL:
-                            case DEFAULT:
-                                return !mobData.isNaturalSpawn();
-                            case CUSTOM:
-                                return !mobData.isCustomSpawn();
-                            case SPAWNER:
-                                return !mobData.isSpawnerSpawn();
-                            case SPAWNER_EGG:
-                                return !mobData.isEggSpawn();
-                            case BREEDING:
-                                return !mobData.isBreedingSpawn();
-                            case BUILD_IRONGOLEM:
-                                return !mobData.isIronGolemSpawn();
-                            default:
-                                return false;
+        if (mobsData != null) {
+            Optional<Boolean> isCancelled = mobsData
+                    .stream()
+                    .filter(mobsData -> mobsData.getWorldName().equalsIgnoreCase(e.getEntity().getWorld().getName()))
+                    .filter(mobsData -> mobsData.getName().equalsIgnoreCase(e.getEntityType().name()))
+                    .findFirst()
+                    .map(mobData -> {
+                        if (!mobData.isAllSpawn()) {
+                            return true;
+                        } else {
+                            switch (e.getSpawnReason()) {
+                                case NATURAL:
+                                case DEFAULT:
+                                    return !mobData.isNaturalSpawn();
+                                case CUSTOM:
+                                    return !mobData.isCustomSpawn();
+                                case SPAWNER:
+                                    return !mobData.isSpawnerSpawn();
+                                case SPAWNER_EGG:
+                                    return !mobData.isEggSpawn();
+                                case BREEDING:
+                                    return !mobData.isBreedingSpawn();
+                                case BUILD_IRONGOLEM:
+                                    return !mobData.isIronGolemSpawn();
+                                default:
+                                    return false;
+                            }
                         }
-                    }
-                });
-        e.setCancelled(isCancelled.orElse(false));
+                    });
+            e.setCancelled(isCancelled.orElse(false));
+        }
     }
 
     @EventHandler
