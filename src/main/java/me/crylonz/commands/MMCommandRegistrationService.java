@@ -27,7 +27,8 @@ public class MMCommandRegistrationService extends MMCommandRegistration {
     public void registerReload() {
         registerCommand("mobsmanager reload", "mobsmanager.reload", () -> {
             this.plugin.reloadConfig();
-            mobsData = (ArrayList<MobsData>) plugin.getConfig().get("mobs");
+            fileManager.reloadMobsDataConfig();
+            mobsData = (ArrayList<MobsData>)fileManager.getMobsDataConfig().get("mobs");
             sender.sendMessage(ChatColor.GREEN + "[MobsManager] Plugin reload successfully");
         });
     }

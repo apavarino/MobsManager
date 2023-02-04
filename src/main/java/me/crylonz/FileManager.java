@@ -8,7 +8,6 @@ import java.io.File;
 import java.io.IOException;
 
 import static me.crylonz.MobsManager.log;
-import static me.crylonz.MobsManager.mobsData;
 
 public class FileManager {
 
@@ -60,11 +59,5 @@ public class FileManager {
         } catch (IOException ex) {
             log.severe("Could not save config to " + mobsDataFile + ex);
         }
-    }
-
-    // custom func
-    public void saveModification() {
-        getMobsDataConfig().set("MobsData", mobsData);
-        saveMobsDataConfig();
     }
 }

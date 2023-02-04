@@ -136,26 +136,28 @@ public class MobsManager extends JavaPlugin implements Listener {
     @EventHandler
     public void onChunkLoadEvent(ChunkLoadEvent e) {
         if (e.getChunk().isLoaded()) {
-            Arrays.stream(e.getChunk().getEntities())
-                    .forEach(entity -> {
-                        mobsData
-                                .stream()
-                                .filter(mobData -> mobData.getName().equalsIgnoreCase(entity.getName()))
-                                .filter(mobData -> mobData.getWorldName().equalsIgnoreCase(entity.getWorld().getName()))
-                                .filter(mobsData -> mobsData.getWorldName().equalsIgnoreCase(entity.getWorld().getName()))
-                                .forEach(mobData -> {
-                                    if (!mobData.isAllSpawn() || !mobData.isNaturalSpawn()) {
-                                        entity.remove();
-                                    }
-                                });
-                    });
+            if (mobsData != null && mobsData.size() > 0) {
+                Arrays.stream(e.getChunk().getEntities())
+                        .forEach(entity -> {
+                            mobsData
+                                    .stream()
+                                    .filter(mobData -> mobData.getName().equalsIgnoreCase(entity.getName()))
+                                    .filter(mobData -> mobData.getWorldName().equalsIgnoreCase(entity.getWorld().getName()))
+                                    .filter(mobsData -> mobsData.getWorldName().equalsIgnoreCase(entity.getWorld().getName()))
+                                    .forEach(mobData -> {
+                                        if (!mobData.isAllSpawn() || !mobData.isNaturalSpawn()) {
+                                            entity.remove();
+                                        }
+                                    });
+                        });
 
-            for (Entity entity : e.getChunk().getEntities()) {
-                for (MobsData mobData : mobsData) {
-                    if (entity.getName().equalsIgnoreCase(mobData.getName())) {
-                        if (!mobData.isAllSpawn() || !mobData.isNaturalSpawn()) {
-                            entity.remove();
-                            break;
+                for (Entity entity : e.getChunk().getEntities()) {
+                    for (MobsData mobData : mobsData) {
+                        if (entity.getName().equalsIgnoreCase(mobData.getName())) {
+                            if (!mobData.isAllSpawn() || !mobData.isNaturalSpawn()) {
+                                entity.remove();
+                                break;
+                            }
                         }
                     }
                 }

@@ -1,6 +1,6 @@
 name: MobsManager
 main: me.crylonz.MobsManager
-version: "5.2.0"
+version: "5.3.0"
 author: Crylonz
 softdepend: [Multiverse-Core]
 description: MobsManager
