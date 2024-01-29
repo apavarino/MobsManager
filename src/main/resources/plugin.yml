@@ -1,8 +1,8 @@
 name: MobsManager
 main: me.crylonz.MobsManager
-version: "5.3.0"
+version: "5.4.0"
 author: Crylonz
-softdepend: [Multiverse-Core]
+softdepend: [Multiverse-Core, WorldGuard]
 description: MobsManager
 api-version: "1.13"
 commands:

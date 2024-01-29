@@ -4,5 +4,6 @@
 # Any trouble to use this file ? Ask help on Discord : https://discordapp.com/invite/jCsvJxS
 #
 auto-update: true
+world-guard-detection: false
 
 

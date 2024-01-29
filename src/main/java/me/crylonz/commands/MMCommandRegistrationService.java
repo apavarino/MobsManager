@@ -3,7 +3,8 @@ package me.crylonz.commands;
 import me.crylonz.MobsData;
 import me.crylonz.MobsManager;
 import me.crylonz.MobsManager.MMSpawnType;
-import org.apache.commons.lang.StringUtils;
+
+import org.apache.commons.lang3.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.EntityType;
 import org.bukkit.plugin.Plugin;
@@ -12,8 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static me.crylonz.MobsManager.fileManager;
-import static me.crylonz.MobsManager.mobsData;
+import static me.crylonz.MobsManager.*;
 
 public class MMCommandRegistrationService extends MMCommandRegistration {
 
@@ -27,6 +27,7 @@ public class MMCommandRegistrationService extends MMCommandRegistration {
     public void registerReload() {
         registerCommand("mobsmanager reload", "mobsmanager.reload", () -> {
             this.plugin.reloadConfig();
+            worldGuardDetection = plugin.getConfig().getBoolean("world-guard-detection");
             fileManager.reloadMobsDataConfig();
             mobsData = (ArrayList<MobsData>)fileManager.getMobsDataConfig().get("mobs");
             sender.sendMessage(ChatColor.GREEN + "[MobsManager] Plugin reload successfully");

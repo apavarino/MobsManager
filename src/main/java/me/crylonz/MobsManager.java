@@ -1,5 +1,12 @@
 package me.crylonz;
 
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.protection.ApplicableRegionSet;
+import com.sk89q.worldguard.protection.flags.Flags;
+import com.sk89q.worldguard.protection.managers.RegionManager;
+import com.sk89q.worldguard.protection.regions.RegionContainer;
 import me.crylonz.commands.MMCommandExecutor;
 import me.crylonz.commands.MMTabCompletion;
 import me.crylonz.utils.MobsManagerConfig;
@@ -29,6 +36,7 @@ public class MobsManager extends JavaPlugin implements Listener {
     public static ArrayList<MobsData> mobsData = new ArrayList<>();
     public MobsManagerConfig config = new MobsManagerConfig(this);
 
+    public static boolean worldGuardDetection;
     public static FileManager fileManager;
 
     static {
@@ -81,6 +89,8 @@ public class MobsManager extends JavaPlugin implements Listener {
             MobsManagerUpdater updater = new MobsManagerUpdater(this, 322365, this.getFile(), MobsManagerUpdater.UpdateType.DEFAULT, true);
         }
 
+        worldGuardDetection = config.getBoolean("world-guard-detection");
+
         Objects.requireNonNull(this.getCommand("mobsmanager"), "Command mobsmanager not found")
                 .setExecutor(new MMCommandExecutor(this));
         Objects.requireNonNull(getCommand("mobsmanager")).setTabCompleter(new MMTabCompletion());
@@ -89,6 +99,7 @@ public class MobsManager extends JavaPlugin implements Listener {
 
     public void registerConfig() {
         config.register("auto-update", true);
+        config.register("world-guard-detection", false);
     }
 
     public void onDisable() {
@@ -99,6 +110,9 @@ public class MobsManager extends JavaPlugin implements Listener {
     public void onCreatureSpawnEvent(CreatureSpawnEvent e) {
         if (e == null)
             return;
+
+        // Do nothing if WorldGuard spawn flag exists to prevent spawn issues
+        if (worldGuardCheck(e)) return;
 
         if (mobsData != null) {
             Optional<Boolean> isCancelled = mobsData
@@ -131,6 +145,28 @@ public class MobsManager extends JavaPlugin implements Listener {
                     });
             e.setCancelled(isCancelled.orElse(false));
         }
+    }
+
+    private static boolean worldGuardCheck(CreatureSpawnEvent e) {
+        if (worldGuardDetection) {
+
+            RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
+            RegionManager regions = container.get(BukkitAdapter.adapt(e.getEntity().getLocation().getWorld()));
+
+            if (regions != null) {
+                BlockVector3 position = BlockVector3.at(e.getEntity().getLocation().getX(),
+                        e.getEntity().getLocation().getY(), e.getEntity().getLocation().getZ());
+                ApplicableRegionSet set = regions.getApplicableRegions(position);
+
+                if (set.size() != 0) {
+                    if (set.testState(null, Flags.MOB_SPAWNING) ||
+                            set.queryAllValues(null, Flags.DENY_SPAWN).isEmpty()) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     @EventHandler
