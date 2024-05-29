@@ -7,8 +7,7 @@ import me.crylonz.utils.MobsManagerUpdater;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -242,6 +241,13 @@ public class MobsManager extends JavaPlugin implements Listener {
                 e != EntityType.FISHING_HOOK &&
                 e != EntityType.LIGHTNING &&
                 e != EntityType.PLAYER &&
+                e != EntityType.GLOW_ITEM_FRAME &&
+                e != EntityType.MARKER &&
+                e != EntityType.CHEST_BOAT &&
+                e != EntityType.BLOCK_DISPLAY &&
+                e != EntityType.INTERACTION &&
+                e != EntityType.ITEM_DISPLAY &&
+                e != EntityType.TEXT_DISPLAY &&
                 e != EntityType.UNKNOWN;
     }
 }
